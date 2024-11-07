@@ -2,15 +2,15 @@ import express from 'express'
 import cors from 'cors'
 import pkg from 'pg'
 
+
 const port = 3001
 const { Pool } = pkg
+
 
 const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
-
-
 
 app.get('/',(req,res) => {
     const pool = openDb()
@@ -22,6 +22,18 @@ app.get('/',(req,res) => {
         return res.status(200).json(result.rows)
     })
 }) 
+
+const openDb = () => {
+    const pool = new Pool ({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'todo',
+        password: 'root',
+        port: 5432
+    })
+    return pool
+}
+
 
 app.post('/create',(req,res) => {
     const pool = openDb()
@@ -47,21 +59,11 @@ app.delete('/delete/:id',(req,res) => {
             if (error) {
                 return res.status(500).json({error: error.message})
             }
-            return res.status(200).json({id: result.rows[0].id})
+            return res.status(200).json({id: id})
         }
     )
 })
 
-const openDb = () => {
-    const pool = new Pool ({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'todo',
-        password: 'root',
-        port: 5432
-    })
-    return pool
-}
 
 
 app.listen(port)
